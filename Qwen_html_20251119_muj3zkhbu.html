@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ван-Пис — Фан-Сайт</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #0a192f, #1e3a8a);
+      color: white;
+      line-height: 1.6;
+    }
+
+    /* Вкладки */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #ffcc00;
+      padding: 14px 20px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: bold;
+      flex: 1;
+      max-width: 180px;
+    }
+    .tab-btn:hover {
+      background: rgba(255, 204, 0, 0.1);
+    }
+    .tab-btn.active {
+      background: rgba(255, 204, 0, 0.3);
+    }
+
+    /* Содержимое вкладок */
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Общие стили */
+    h1, h2, h3 {
+      margin-bottom: 16px;
+    }
+    .world-map {
+      width: 100%;
+      max-width: 800px;
+      border: 2px solid gold;
+      border-radius: 8px;
+      display: block;
+      margin: 20px auto;
+    }
+    .route-marker {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.7);
+      color: gold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      pointer-events: none;
+    }
+    .map-container {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Викторина */
+    #quiz-container button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      background: #2d3748;
+      color: white;
+      border: 1px solid gold;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #quiz-container button:hover {
+      background: #4a5568;
+    }
+    #next-btn {
+      background: gold;
+      color: #000;
+      font-weight: bold;
+    }
+
+    /* Форум */
+    .forum .post {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    .forum .post h3 {
+      color: gold;
+      margin-bottom: 10px;
+    }
+    .new-post input,
+    .new-post textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+    .new-post button {
+      background: gold;
+      color: #000;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Эпизоды */
+    .arc {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    .arc h3 {
+      color: gold;
+    }
+    .episode {
+      margin: 8px 0;
+      padding-left: 15px;
+      border-left: 2px solid #ffcc00;
+    }
+    .episode strong {
+      color: #ffcc00;
+    }
+
+    /* Случайный эпизод */
+    #random-episode-btn {
+      background: gold;
+      color: #000;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 20px 0;
+    }
+    #random-episode-btn:hover {
+      background: #e6b800;
+    }
+    #random-episode-display {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: none;
+    }
+    #random-episode-display h3 {
+      color: #ffcc00;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.7);
+      margin-top: 2rem;
+      font-size: 0.9em;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      .tab-btn {
+        padding: 12px 8px;
+        font-size: 0.85em;
+      }
+      .route-marker {
+        font-size: 0.65em;
+        padding: 2px 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Вкладки -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="map">Карта</button>
+    <button class="tab-btn" data-tab="episodes">Эпизоды</button>
+    <button class="tab-btn" data-tab="quiz">Викторина</button>
+    <button class="tab-btn" data-tab="forum">Форум</button>
+  </div>
+
+  <!-- Карта -->
+  <div id="map" class="tab-content active">
+    <h1>🏴‍☠️ Карта мира Ван-Пис (до 100 эп.)</h1>
+    <div class="map-container">
+      <img src="https://i.imgur.com/6R9Qq3G.png" alt="Карта мира" class="world-map">
+      <div class="route-marker" style="top: 30%; left: 15%;">Фуша</div>
+      <div class="route-marker" style="top: 40%; left: 25%;">Си-Кинг</div>
+      <div class="route-marker" style="top: 50%; left: 35%;">Оранж. Дер.</div>
+      <div class="route-marker" style="top: 45%; left: 50%;">Арлон</div>
+      <div class="route-marker" style="top: 35%; left: 65%;">Баракуда</div>
+      <div class="route-marker" style="top: 25%; left: 80%;">Гранд Лайн</div>
+    </div>
+    <p>Маршрут экипажа Соломенной Шляпы до вступления в Гранд Лайн (эпизоды 1–91).</p>
+  </div>
+
+  <!-- Эпизоды -->
+  <div id="episodes" class="tab-content">
+    <h1>📺 Эпизоды Ван-Пис (1–100)</h1>
+    <p>Первые приключения Луффи и его экипажа до входа в Гранд Лайн.</p>
+
+    <button id="random-episode-btn">🎲 Случайный эпизод</button>
+    <div id="random-episode-display"></div>
+
+    <div class="arc">
+      <h3>1. Романтика на Красном Поле (Эп. 1–3)</h3>
+      <p>Луффи отправляется в путь, чтобы стать Королём Пиратов. Он встречает Усоппа и узнаёт о Великом Кладе.</p>
+      <div class="episode"><strong>Эп. 1:</strong> Я хочу стать Королём Пиратов!</div>
+    </div>
+
+    <div class="arc">
+      <h3>2. Арка Моргана (Эп. 4–6)</h3>
+      <p>Луффи и Зоро впервые сражаются вместе против коррумпированного морпеха.</p>
+      <div class="episode"><strong>Эп. 4:</strong> Мечник с тремя мечами</div>
+    </div>
+
+    <div class="arc">
+      <h3>3. Арка Багги (Эп. 7–19)</h3>
+      <p>Экипаж встречает циркового пирата Багги и спасает деревню от его злодеяний.</p>
+      <div class="episode"><strong>Эп. 7:</strong> Большой пират Багги!</div>
+    </div>
+
+    <div class="arc">
+      <h3>4. Арка Куро (Эп. 20–30)</h3>
+      <p>Усопп присоединяется к экипажу, чтобы спасти свою деревню от лже-дворецкого Куро.</p>
+      <div class="episode"><strong>Эп. 20:</strong> Лже-дворецкий Куро</div>
+    </div>
+
+    <div class="arc">
+      <h3>5. Арка Санжи (Эп. 31–43)</h3>
+      <p>Экипаж встречает повара Санжи и борется с пиратами Дон Кригом за корабль «Идущий Головой вперёд».</p>
+      <div class="episode"><strong>Эп. 31:</strong> Повар-пират Санжи!</div>
+    </div>
+
+    <div class="arc">
+      <h3>6. Арка Аравы (Эп. 44–77)</h3>
+      <p>Нами просит помощи — её деревня порабощена рыбоподобными пиратами во главе с Арлонгом.</p>
+      <div class="episode"><strong>Эп. 45:</strong> Настоящая причина Нами</div>
+      <div class="episode"><strong>Эп. 76:</strong> Слёзы Нами — «Помогите, Луффи!»</div>
+    </div>
+
+    <div class="arc">
+      <h3>7. Арка Баро-Баро (Эп. 78–81)</h3>
+      <p>Экипаж отдыхает на острове, где правит пират-гурман Баро-Баро.</p>
+    </div>
+
+    <div class="arc">
+      <h3>8. Арка Джуры (Эп. 82–83)</h3>
+      <p>Небольшая остановка на острове с дьявольским цветком.</p>
+    </div>
+
+    <div class="arc">
+      <h3>9. Арка Джайант-Джека (Эп. 84–100)</h3>
+      <p>Экипаж попадает на остров, управляемый гигантским пиратом Джайант-Джеком, и встречает Виви и Кару.</p>
+      <div class="episode"><strong>Эп. 100:</strong> Великий побег! Корабль в Гранд Лайн!</div>
+    </div>
+  </div>
+
+  <!-- Викторина -->
+  <div id="quiz" class="tab-content">
+    <h1>🧠 Викторина по Ван-Пису (1–100 эп.)</h1>
+    <div id="quiz-container">
+      <div id="question">Загрузка...</div>
+      <div id="answers"></div>
+      <button id="next-btn" style="display:none;">Следующий вопрос</button>
+      <div id="result" style="display:none; margin-top:20px; font-size:1.5em;"></div>
+    </div>
+  </div>
+
+  <!-- Форум -->
+  <div id="forum" class="tab-content">
+    <h1>💬 Форум фанатов Ван-Пис</h1>
+    <div class="forum">
+      <div class="post">
+        <h3>Кто ваш любимый персонаж до 100 эпизода?</h3>
+        <p><strong>ЛуффиОктябрь:</strong> Конечно, Луффи! Он вдохновляет!</p>
+        <p><strong>ЗороФан:</strong> Зоро — настоящий самурай!</p>
+      </div>
+      <div class="post">
+        <h3>Лучшая арка до Гранд Лайна?</h3>
+        <p><strong>НамиЛюбитКарты:</strong> Арка Арлонга — эмоциональная и важная!</p>
+      </div>
+
+      <form class="new-post" onsubmit="alert('В демо-режиме сообщения не сохраняются!'); return false;">
+        <h3>Создать тему</h3>
+        <input type="text" placeholder="Заголовок" required>
+        <textarea placeholder="Ваше сообщение..." rows="4" required></textarea>
+        <button type="submit">Опубликовать</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Ван-Пис Фан-Сайт | Все права принадлежат Eiichiro Oda и Toei Animation</p>
+  </footer>
+
+  <script>
+    // === СЛУЧАЙНЫЙ ЭПИЗОД ===
+    const episodes = [
+      { num: 1, title: "Я хочу стать Королём Пиратов!", desc: "Луффи съедает фрукт Гомо Гомо но Ми и отправляется в путь." },
+      { num: 2, title: "Того, кто смеётся последним!", desc: "Луффи спасает Капоне 'Ганчи' Бегги от смерти." },
+      { num: 3, title: "Морпех Морган", desc: "Луффи встречает Зоро, приговорённого к казни." },
+      { num: 4, title: "Мечник с тремя мечами", desc: "Луффи освобождает Зоро и предлагает ему присоединиться." },
+      { num: 5, title: "Битва с морпехом", desc: "Луффи и Зоро сражаются с Морганом." },
+      { num: 6, title: "Новый член экипажа — Зоро!", desc: "Экипаж покидает деревню Си-Кинг." },
+      { num: 7, title: "Большой пират Багги!", desc: "Экипаж встречает циркового пирата Багги." },
+      { num: 8, title: "Пират с разделяющимся телом", desc: "Багги использует фрукт Бари-Бари но Ми." },
+      { num: 9, title: "Три чудовища!", desc: "Луффи, Зоро и Нами разделяются, чтобы спасти деревню." },
+      { num: 10, title: "Пират Багги — человек-пушка!", desc: "Луффи находит Багги и сражается с ним." },
+      { num: 11, title: "Экипаж Багги в панике!", desc: "Подручные Багги пытаются остановить Луффи." },
+      { num: 12, title: "Багги использует оружие массового поражения!", desc: "Багги запускает пушечное ядро в деревню." },
+      { num: 13, title: "Величайшая битва на море!", desc: "Корабль Багги атакует Луффи." },
+      { num: 14, title: "Зоро — человек с тремя мечами!", desc: "Зоро сражается с подручными Багги." },
+      { num: 15, title: "Багги в ярости!", desc: "Багги объявляет о полном уничтожении деревни." },
+      { num: 16, title: "Тайный план Багги", desc: "Нами обманывает Багги и забирает его карту." },
+      { num: 17, title: "Спасти Могу!", desc: "Луффи спасает щенка от Багги." },
+      { num: 18, title: "Багги — человек-шар!", desc: "Финальная битва с Багги." },
+      { num: 19, title: "Покинуть деревню!", desc: "Экипаж расстаётся с жителями, получив новый корабль." },
+      { num: 20, title: "Лже-дворецкий Куро", desc: "Луффи встречает Усоппа в деревне Си-Си." },
+      { num: 21, title: "Усопп-пират!", desc: "Усопп рассказывает детям о своих 'приключениях'." },
+      { num: 22, title: "Правда о болезни отца Усоппа", desc: "Раскрывается, что отец Усоппа — пират Ясудзи." },
+      { num: 23, title: "Пират Куро!", desc: "Капитан Куро возвращается за наследством Кая." },
+      { num: 24, title: "Дворецкий Клахадор", desc: "Настоящая личность Клахадора раскрыта." },
+      { num: 25, title: "Охота на Усоппа", desc: "Куро приказывает убить Усоппа." },
+      { num: 26, title: "Настоящая цель Куро", desc: "Куро планирует убить Кая и завладеть её богатством." },
+      { num: 27, title: "Усопп просит о помощи", desc: "Усопп умоляет Луффи помочь защитить деревню." },
+      { num: 28, title: "Битва на пляже", desc: "Луффи сражается с подручными Куро." },
+      { num: 29, title: "Финал битвы с Куро", desc: "Луффи побеждает Куро." },
+      { num: 30, title: "Усопп присоединяется!", desc: "Усопп становится снайпером экипажа." },
+      { num: 31, title: "Повар-пират Санжи!", desc: "Луффи встречает Санжи в ресторане 'Барatie'." },
+      { num: 32, title: "Повар и мечник", desc: "Зоро и Санжи ссорятся из-за еды." },
+      { num: 33, title: "Атака пиратов Дон Крига", desc: "Пираты Дон Крига нападают на ресторан." },
+      { num: 34, title: "Секрет Санжи", desc: "Санжи мечтает найти Всемогущее Море." },
+      { num: 35, title: "Луффи против Дон Крига", desc: "Луффи бросает вызов капитану Дон Кригу." },
+      { num: 36, title: "Битва на палубе", desc: "Экипаж защищает 'Барatie'." },
+      { num: 37, title: "Секрет Зефира", desc: "Раскрывается, что Зефир — бывший пират." },
+      { num: 38, title: "Судьба 'Барatie'", desc: "Ресторан разрушен, но выживает." },
+      { num: 39, title: "Финал битвы", desc: "Луффи побеждает Дон Крига." },
+      { num: 40, title: "Санжи присоединяется!", desc: "Санжи становится поваром экипажа." },
+      { num: 41, title: "Покинуть 'Барatie'", desc: "Экипаж получает корабль 'Идущий Головой вперёд'." },
+      { num: 42, title: "Нами в опасности", desc: "Нами просит помощи — её деревня захвачена." },
+      { num: 43, title: "Путешествие к Араве", desc: "Экипаж направляется на остров Арава." },
+      { num: 44, title: "Остров Арава", desc: "Экипаж прибывает на остров, где правят рыбоподобные пираты." },
+      { num: 45, title: "Настоящая причина Нами", desc: "Нами работает на Арлонга, чтобы выкупить деревню." },
+      { num: 46, title: "Атака на Луффи", desc: "Луффи нападает на пиратов Арлонга." },
+      { num: 47, title: "Битва с Хати", desc: "Зоро сражается с Хати." },
+      { num: 48, title: "Нами предаёт Луффи?", desc: "Нами наносит Луффи удар." },
+      { num: 49, title: "Истинные чувства Нами", desc: "Нами признаётся, что нуждается в помощи." },
+      { num: 50, title: "Луффи в Араве", desc: "Луффи заявляет: 'Теперь твои проблемы — мои проблемы!'" },
+      { num: 51, title: "Битва за Араву начинается", desc: "Экипаж объявляет войну Арлонгу." },
+      { num: 52, title: "Санжи против Курооби", desc: "Санжи сражается с Курооби." },
+      { num: 53, title: "Зоро против Хати", desc: "Зоро побеждает Хати." },
+      { num: 54, title: "Усопп объявляет войну", desc: "Усопп мобилизует детей деревни." },
+      { num: 55, title: "Нами возвращается", desc: "Нами срывает татуировку Арлонга." },
+      { num: 56, title: "Луффи против Арлонга", desc: "Начинается финальная битва." },
+      { num: 57, title: "Сила Арлонга", desc: "Арлонг использует фрукт Сава Сава но Ми." },
+      { num: 58, title: "Луффи в ловушке", desc: "Луффи оказывается в затруднительном положении." },
+      { num: 59, title: "Гнев Луффи", desc: "Луффи выпускает Гум-Гум Баллон." },
+      { num: 60, title: "Гум-Гум Базука!", desc: "Луффи побеждает Арлонга." },
+      { num: 61, title: "Победа в Араве", desc: "Деревня свободна!" },
+      { num: 62, title: "Нами в экипаже!", desc: "Нами официально присоединяется к команде." },
+      { num: 63, title: "Отплытие из Аравы", desc: "Экипаж покидает остров с новым флагом." },
+      { num: 64, title: "Арка Баро-Баро", desc: "Экипаж отдыхает на острове гурмана." },
+      { num: 65, title: "Пират-гурман", desc: "Баро-Баро предлагает им еду в обмен на золото." },
+      { num: 66, title: "Битва за еду", desc: "Луффи и Санжи сражаются за последнее блюдо." },
+      { num: 67, title: "Тайна Баро-Баро", desc: "Баро-Баро оказывается жестоким пиратом." },
+      { num: 68, title: "Битва с Баро-Баро", desc: "Экипаж сражается с Баро-Баро." },
+      { num: 69, title: "Победа над Баро-Баро", desc: "Экипаж побеждает и уплывает." },
+      { num: 70, title: "Арка Джуры", desc: "Экипаж посещает остров с дьявольским цветком." },
+      { num: 71, title: "Цветок смерти", desc: "Цветок Джура-Джура угрожает экипажу." },
+      { num: 72, title: "Спасти остров", desc: "Экипаж помогает жителям уничтожить цветок." },
+      { num: 73, title: "Арка Джайант-Джека", desc: "Экипаж попадает на остров, где правит гигантский пират." },
+      { num: 74, title: "Виви и Кару", desc: "Экипаж встречает принцессу Виви и её птицу Кару." },
+      { num: 75, title: "Заговор Джайант-Джека", desc: "Джайант-Джек планирует убить Виви." },
+      { num: 76, title: "Слёзы Нами — «Помогите, Луффи!»", desc: "Нами впервые доверяется Луффи как командиру." },
+      { num: 77, title: "Битва в пустыне", desc: "Экипаж сражается с подручными Джайант-Джека." },
+      { num: 78, title: "Правда о Виви", desc: "Виви — шпионка, работающая против барона Ома." },
+      { num: 79, title: "Побег из ловушки", desc: "Экипаж спасает Виви." },
+      { num: 80, title: "Джайант-Джек в ярости", desc: "Джайант-Джек преследует экипаж." },
+      { num: 81, title: "Финал арки Джайант-Джека", desc: "Экипаж побеждает и уплывает." },
+      { num: 82, title: "Путь к Гранд Лайну", desc: "Экипаж приближается к обратной стороне Ред Лайн." },
+      { num: 83, title: "Встреча с Беллмери", desc: "Нами вспоминает приёмную мать." },
+      { num: 84, title: "Остров Лог-Таун", desc: "Экипаж посещает город, где был казнён Гол Д. Роджер." },
+      { num: 85, title: "Призраки прошлого", desc: "Луффи посещает место казни Роджера." },
+      { num: 86, title: "Нападение Багги и Моргана", desc: "Бывшие враги объединяются против Луффи." },
+      { num: 87, title: "Побег из Лог-Тауна", desc: "Экипаж спасается от палача." },
+      { num: 88, title: "Шторм перед Гранд Лайном", desc: "Начинается шторм у входа в Гранд Лайн." },
+      { num: 89, title: "Вход в Гранд Лайн", desc: "Экипаж проходит через перевёрнутый водопад." },
+      { num: 90, title: "Остров Уайтснейк", desc: "Первый остров в Гранд Лайне." },
+      { num: 91, title: "Встреча с Крокодайлом", desc: "Луффи узнаёт о таинственном бароне Оме." },
+      { num: 92, title: "План Крокодайла", desc: "Раскрывается, что Крокодайл — лидер Барок Воркс." },
+      { num: 93, title: "Виви в опасности", desc: "Виви возвращается в Альябасту." },
+      { num: 94, title: "Разделение экипажа", desc: "Экипаж разделяется для выполнения миссии." },
+      { num: 95, title: "Зоро против Мистера 1", desc: "Зоро сражается за освоение Хаки." },
+      { num: 96, title: "Санжи против Мистера 2", desc: "Санжи теряет лицо из-за способностей Бон Клея." },
+      { num: 97, title: "Усопп и Нами в беде", desc: "Они сталкиваются с ловушками Барок Воркс." },
+      { num: 98, title: "Луффи против Крокодайла", desc: "Первая битва с Крокодайлом." },
+      { num: 99, title: "Победа над Крокодайлом", desc: "Луффи побеждает с помощью крови." },
+      { num: 100, title: "Великий побег! Корабль в Гранд Лайн!", desc: "Экипаж воссоединяется и покидает Альябасту." }
+    ];
+
+    document.getElementById('random-episode-btn').addEventListener('click', () => {
+      const randomEp = episodes[Math.floor(Math.random() * episodes.length)];
+      const display = document.getElementById('random-episode-display');
+      display.innerHTML = `
+        <h3>Эпизод ${randomEp.num}: ${randomEp.title}</h3>
+        <p>${randomEp.desc}</p>
+      `;
+      display.style.display = 'block';
+    });
+
+    // === ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ===
+    document.querySelectorAll('.tab-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        button.classList.add('active');
+        const tabId = button.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+
+        if (tabId === 'quiz' && !window.quizInitialized) {
+          initQuiz();
+          window.quizInitialized = true;
+        }
+      });
+    });
+
+    // === ВИКТОРИНА ===
+    const questions = [
+      { q: "Как зовут капитана Соломенной Шляпы?", a: ["Луффи", "Зоро", "Санжи", "Усопп"], correct: 0 },
+      { q: "Какой фрукт съел Луффи?", a: ["Гомо Гомо но Ми", "Мера Мера но Ми", "Гуру Гуру но Ми", "Хаки Хаки но Ми"], correct: 0 },
+      { q: "Кто первый присоединился к экипажу Луффи?", a: ["Зоро", "Нами", "Усопп", "Санжи"], correct: 0 },
+      { q: "В какой деревне родился Луффи?", a: ["Фуша", "Си-Кинг", "Кокояши", "Арлон"], correct: 0 },
+      { q: "Как зовут младшего брата Луффи?", a: ["Сабо", "Айсберг", "Аокидзи", "Трафальгар"], correct: 0 },
+      { q: "Что ищет Нами?", a: ["Погоду", "Карту мира", "Сокровища", "Свою деревню"], correct: 1 },
+      { q: "Кем был Багги до пиратства?", a: ["Циркач", "Морпех", "Повар", "Кузнец"], correct: 0 },
+      { q: "Кто убил Шанксу руку?", a: ["Луффи", "Морской змей", "Акула", "Сабо"], correct: 1 },
+      { q: "Какой девиз у экипажа Аравы?", a: ["Мечты не продаются!", "За свободу!", "Пираты правят миром!", "Деньги решают всё!"], correct: 0 },
+      { q: "Кто носит оружие 'Катана'?", a: ["Зоро", "Санжи", "Усопп", "Луффи"], correct: 0 },
+      { q: "Кто управлял деревней Си-Кинг?", a: ["Морган", "Хати", "Куро", "Арлонг"], correct: 2 },
+      { q: "Какой формы у корабля 'Идущий Головой вперёд'?", a: ["Рыба", "Птица", "Череп", "Лошадь"], correct: 2 },
+      { q: "Кто первый пират, с которым сражался Луффи?", a: ["Алвиди", "Пицца", "Хати", "Морган"], correct: 3 },
+      { q: "Как зовут сестру Ноами?", a: ["Ноами", "Белль-Мер", "Рика", "Кая"], correct: 1 },
+      { q: "Кто стал королём пиратов до событий аниме?", a: ["Роджер", "Шанкс", "Белль-Мер", "Гарп"], correct: 0 },
+      { q: "Какой эпизод первый?", a: ["Я хочу стать королём пиратов!", "Появление Луффи", "Первое сражение", "Фрукт дьявола"], correct: 0 },
+      { q: "Кто обучал Нами картографии?", a: ["Белль-Мер", "Арлонг", "Луффи", "Кая"], correct: 0 },
+      { q: "Как зовут повара на корабле Соломенной Шляпы?", a: ["Санжи", "Зоро", "Луффи", "Джонни"], correct: 0 },
+      { q: "Что обещал Усопп своей деревне?", a: ["Стать храбрым", "Найти лекарство", "Найти золото", "Построить корабль"], correct: 0 },
+      { q: "Сколько жизней у кошки по имени Каминари?", a: ["9", "7", "1", "Бесконечно"], correct: 0 }
+    ];
+
+    let shuffledQuestions = [];
+    let current = 0;
+    let score = 0;
+
+    function initQuiz() {
+      shuffledQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, 20);
+      current = 0;
+      score = 0;
+      document.getElementById('result').style.display = 'none';
+      document.getElementById('next-btn').style.display = 'none';
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (current >= shuffledQuestions.length) {
+        showResult();
+        return;
+      }
+
+      const q = shuffledQuestions[current];
+      document.getElementById('question').innerText = q.q;
+      const answersHTML = q.a.map((ans, i) =>
+        `<button onclick="checkAnswer(${i})">${ans}</button>`
+      ).join('');
+      document.getElementById('answers').innerHTML = answersHTML;
+    }
+
+    function checkAnswer(selected) {
+      const q = shuffledQuestions[current];
+      if (selected === q.correct) score++;
+      current++;
+      document.getElementById('next-btn').style.display = 'block';
+    }
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      showQuestion();
+    });
+
+    function showResult() {
+      const percent = Math.round((score / 20) * 100);
+      let message = `Вы набрали ${score} из 20!<br>`;
+      if (percent >= 90) message += "👑 Вы — Король Пиратов!";
+      else if (percent >= 70) message += "⚓ Отличный пират!";
+      else if (percent >= 50) message += "🧭 Хорошо знаете Ван-Пис!";
+      else message += "📚 Пора пересмотреть первые 100 серий!";
+
+      document.getElementById('quiz-container').innerHTML = `<div id="result">${message}</div>`;
+    }
+  </script>
+</body>
+</html>
